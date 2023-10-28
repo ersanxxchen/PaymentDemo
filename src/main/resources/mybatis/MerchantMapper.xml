@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.project.mapper.MerchantMapper">
+    <resultMap id="MerchantResultMap" type="com.example.demo.project.domain.DO.Merchant">
+        <result column="merchant_id"            jdbcType="INTEGER" property="merchantId"/>
+        <result column="company_name"            jdbcType="VARCHAR" property="companyName"/>
+        <result column="website_type"             jdbcType="INTEGER" property="websiteType"/>
+        <result column="channel_id"            jdbcType="VARCHAR" property="channelId"/>
+        <result column="channel_mid"  jdbcType="INTEGER" property="channelMid"/>
+        <result column="channel_key"        jdbcType="VARCHAR" property="channelKey"/>
+        <result column="channel_secure_key"            jdbcType="VARCHAR" property="channelSecureKey"/>
+        <result column="merchant_sign_key"              jdbcType="VARCHAR" property="merchantSignKey"/>
+    </resultMap>
+
+    <select id="queryMerchant" resultMap="MerchantResultMap">
+        SELECT merchant_id,
+               company_name,
+               website_type,
+               channel_id,
+               channel_mid,
+               channel_key,
+               channel_secure_key,
+               merchant_sign_key
+        FROM
+            t_merchant m
+        WHERE m.merchant_id = #{merchantId}
+    </select>
+
+</mapper>

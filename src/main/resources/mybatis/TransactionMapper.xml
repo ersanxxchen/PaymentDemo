@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.project.mapper.TransactionMapper">
+
+
+    <insert id="saveCardHolder" parameterType="com.example.demo.project.domain.DO.CardHolder">
+        insert into t_cardholder(ci_tr_no, ci_mer_no, ci_mer_order_no, ci_card_number, ci_billing_firstname,
+                                 ci_billing_lastname, ci_billing_address, ci_billing_city, ci_billing_state,
+                                 ci_billing_zip, ci_billing_country, ci_billing_phone, ci_billing_email,
+                                 ci_shipping_firstname, ci_shipping_lastname, ci_shipping_address, ci_shipping_city,
+                                 ci_shipping_state, ci_shipping_zip, ci_shipping_country, ci_shipping_phone,
+                                 ci_shipping_email, ci_customer_ip, ci_create_datetime, ci_update_datetime)
+        values (#{transNo}, #{merNo}, #{merOrderNo}, #{cardNumber}, #{billingFirstName}, #{billingLastName},
+                #{billingAddress}, #{billingCity}, #{billingState}, #{billingZip}, #{billingCountry}, #{billingPhone},
+                #{billingEmail}, #{shippingFirstName}, #{shippingLastName}, #{shippingAddress}, #{shippingCity},
+                #{shippingState}, #{shippingZip}, #{shippingCountry}, #{shippingPhone}, #{shippingEmail}, #{customerIp},
+                #{createDateTime}, #{updateDateTime})
+    </insert>
+
+    <insert id="saveBlockTransaction" parameterType="com.example.demo.project.domain.DO.BlockTransaction">
+        insert into t_transaction_block(trans_no, trans_mer_order_no, trans_mer_account, trans_amount,
+                                        trans_currency, trans_result_code, trans_result_info, trans_cha_id,
+                                        trans_datetime, trans_bank_no, trans_notice_url)
+        values (#{transNo}, #{merOrderNo}, #{merNo}, #{amount},
+                #{currency}, #{resultCode}, #{resultInfo}, #{channelId},
+                #{dateTime}, '', #{noticeUrl})
+    </insert>
+
+    <insert id="saveNormalTransaction" parameterType="com.example.demo.project.domain.DO.NormalTransaction">
+        insert into t_transaction_normal(trans_no, trans_mer_order_no, trans_mer_account, trans_amount,
+                                        trans_currency, trans_result_code, trans_result_info, trans_status,
+                                        trans_cha_id, trans_datetime, trans_bank_no, trans_notice_url)
+        values (#{transNo}, #{merOrderNo}, #{merNo}, #{amount},
+                #{currency}, #{resultCode}, #{resultInfo}, #{status},
+                #{channelId}, #{dateTime}, #{bankOrderNo}, #{noticeUrl})
+    </insert>
+
+    <update id="updateNormalTransaction" parameterType="com.example.demo.project.domain.DO.NormalTransaction">
+        update t_transaction_normal tn
+        set tn.trans_result_code = #{resultCode},
+            tn.trans_result_info = #{resultInfo},
+            tn.trans_status=#{status},
+            tn.trans_bank_no=#{bankOrderNo}
+        where tn.trans_no = #{transNo}
+    </update>
+
+    <delete id="deleteBlockTransaction">
+        delete from t_transaction_block
+        where trans_no = #{transNo}
+    </delete>
+
+</mapper>

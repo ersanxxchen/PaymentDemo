@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.project.mapper.ChannelMapper">
+    <resultMap id="ChannelResultMap" type="com.example.demo.project.domain.DO.Channel">
+        <result column="channel_id"            jdbcType="VARCHAR" property="channelId"/>
+        <result column="channel_name"            jdbcType="VARCHAR" property="channelName"/>
+        <result column="payment_bank"        jdbcType="VARCHAR" property="bank"/>
+        <result column="payment_method"            jdbcType="VARCHAR" property="method"/>
+        <result column="channel_day_limit"              jdbcType="DECIMAL" property="dayLimit"/>
+        <result column="channel_balance_threshold"              jdbcType="DECIMAL" property="balanceThreshold"/>
+        <result column="channel_status"              jdbcType="VARCHAR" property="status"/>
+    </resultMap>
+
+    <select id="queryChannel" resultMap="ChannelResultMap">
+        SELECT channel_id,
+               channel_name,
+               payment_bank,
+               payment_method,
+               channel_day_limit,
+               channel_balance_threshold,
+               channel_status
+        FROM
+            t_channel c
+        WHERE c.channel_id = #{channelId}
+    </select>
+
+</mapper>
