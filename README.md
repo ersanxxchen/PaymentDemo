@@ -4,7 +4,7 @@ Payment Gateway
 
 执行sql文件:start.sql
 
-application.yml需调整数据库连接相关内容
+application.yml需调整数据库连接相关内容\n
 spring.datasource.url 修改为数据库jdbc:mysql://{ip}:{port}/{数据库名}
 spring.datasource.username 修改为数据库用户名
 spring.datasource.password 修改为数据库用户密码
