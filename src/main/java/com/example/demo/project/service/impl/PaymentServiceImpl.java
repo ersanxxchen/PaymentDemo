@@ -3,7 +3,9 @@ package com.example.demo.project.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.example.demo.project.bank.AutBank;
 import com.example.demo.project.bank.BoaBank;
+import com.example.demo.project.bank.CashAppBank;
 import com.example.demo.project.bank.TestBank;
+import com.example.demo.project.bank.VenmoBank;
 import com.example.demo.project.domain.BankReturn;
 import com.example.demo.project.domain.DO.Channel;
 import com.example.demo.project.domain.DO.Merchant;
@@ -37,6 +39,12 @@ public class PaymentServiceImpl implements PaymentService {
     @Autowired
     private TestBank testBank;
 
+    @Autowired
+    private VenmoBank venmoBank;
+
+    @Autowired
+    private CashAppBank cashAppBank;
+
     public BankReturn deal(PaymentRequest paymentRequest, NormalTransaction transaction) {
         BankReturn result = null;
         Merchant merchant = transaction.getMerchant();
@@ -47,6 +55,10 @@ public class PaymentServiceImpl implements PaymentService {
             result = autBank.deal(paymentRequest, transaction);
         } else if ("TEST".equals(channel.getBank())){
             result = testBank.deal(paymentRequest, transaction);
+        } else if ("Venmo".equals(channel.getBank())) {
+            result = venmoBank.deal(paymentRequest, transaction);
+        } else if ("Cash App".equals(channel.getBank())) {
+            result = cashAppBank.deal(paymentRequest, transaction);
         }
         // 推送商户
         return result;

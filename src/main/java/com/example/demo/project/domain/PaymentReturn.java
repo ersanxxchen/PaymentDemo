@@ -25,4 +25,7 @@ public class PaymentReturn {
 
     @Builder.Default
     private String transReturnInfo = "";
+
+    @Builder.Default
+    private String directUrl = "";
 }

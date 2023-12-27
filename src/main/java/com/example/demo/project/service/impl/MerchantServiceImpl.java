@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MerchantServiceImpl implements MerchantService {
 
-    private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
+    private static final Logger logger = LoggerFactory.getLogger(MerchantServiceImpl.class);
 
     @Autowired
     private MerchantMapper merchantMapper;
@@ -29,5 +29,9 @@ public class MerchantServiceImpl implements MerchantService {
             merchant.setChannel(channel);
         }
         return merchant;
+    }
+
+    public Channel queryChannel(Integer channelId) {
+        return channelMapper.queryChannel(channelId);
     }
 }

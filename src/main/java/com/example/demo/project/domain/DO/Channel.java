@@ -19,6 +19,9 @@ public class Channel {
 
     private BigDecimal balanceThreshold;
 
+    private String directUrl;
+
     private String status;
+
 
 }

@@ -37,6 +37,20 @@ public class NormalTransaction {
     private String bankOrderNo = "";
     @Builder.Default
     private String noticeUrl = "";
+    @Builder.Default
+    private Integer noticeStatus = 0;
+    @Builder.Default
+    private String noticeDate = "";
+    @Builder.Default
+    private String transPayName = "";
+    @Builder.Default
+    private String transPayEmail = "";
+    @Builder.Default
+    private String transPayImageUrl = "";
+    @Builder.Default
+    private String transPayUrl = "";
+    @Builder.Default
+    private String transPayId = "";
 
     @Builder.Default
     private CardHolder cardHolder = null;

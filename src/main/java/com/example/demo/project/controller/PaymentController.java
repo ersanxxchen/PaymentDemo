@@ -15,6 +15,7 @@ import com.example.demo.project.service.impl.BaseParamCheckServiceImpl;
 import com.example.demo.project.service.impl.MerchantServiceImpl;
 import com.example.demo.project.service.impl.PaymentServiceImpl;
 import com.example.demo.project.service.impl.TransactionServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,15 +67,21 @@ public class PaymentController {
             // save trade
             NormalTransaction normalTransaction = transactionServiceImpl.saveNormalTransaction(blockTransaction);
             normalTransaction.setMerchant(merchant);
+            // 跳转支付
+            if(StringUtils.equals(merchant.getChannel().getBank(),"Venmo")
+                || StringUtils.equals(merchant.getChannel().getBank(),"Cash App")) {
+                paymentReturn.setDirectUrl(merchant.getChannel().getDirectUrl());
+            } else {
             // 发送银行
-            BankReturn bankReturn = paymentServiceImpl.deal(paymentRequest, normalTransaction);
-            // 处理返回
-            normalTransaction = transactionServiceImpl.updateNormalTransaction(bankReturn, normalTransaction);
-            // 推送商户
-            paymentServiceImpl.noticeMerchant(normalTransaction);
-            paymentReturn.setTransStatus(bankReturn.getTransStatus());
-            paymentReturn.setTransReturnCode(bankReturn.getBankReturnCode());
-            paymentReturn.setTransReturnInfo(bankReturn.getBankReturnInfo());
+                BankReturn bankReturn = paymentServiceImpl.deal(paymentRequest, normalTransaction);
+                // 处理返回
+                normalTransaction = transactionServiceImpl.updateNormalTransaction(bankReturn, normalTransaction);
+                // 推送商户
+                paymentServiceImpl.noticeMerchant(normalTransaction);
+                paymentReturn.setTransStatus(bankReturn.getTransStatus());
+                paymentReturn.setTransReturnCode(bankReturn.getBankReturnCode());
+                paymentReturn.setTransReturnInfo(bankReturn.getBankReturnInfo());
+            }
         } catch (Exception e) {
             logger.error("交易异常", e);
             paymentReturn.setTransStatus("ERROR");

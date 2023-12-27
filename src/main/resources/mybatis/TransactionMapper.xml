@@ -2,6 +2,31 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.project.mapper.TransactionMapper">
 
+    <resultMap id="TransactionMap" type="com.example.demo.project.domain.DO.NormalTransaction">
+        <result property="transNo" column="trans_no" jdbcType="VARCHAR"/>
+        <result property="merOrderNo" column="trans_mer_order_no" jdbcType="VARCHAR"/>
+        <result property="merNo" column="trans_mer_account" jdbcType="VARCHAR"/>
+        <result property="amount" column="trans_amount" jdbcType="VARCHAR"/>
+        <result property="currency" column="trans_currency" jdbcType="VARCHAR"/>
+        <result property="resultCode" column="trans_result_code" jdbcType="VARCHAR"/>
+        <result property="resultInfo" column="trans_result_info" jdbcType="VARCHAR"/>
+        <result property="status" column="trans_status" jdbcType="VARCHAR"/>
+        <result property="channelId" column="trans_cha_id" jdbcType="INTEGER"/>
+        <result property="dateTime" column="trans_datetime" jdbcType="VARCHAR"/>
+        <result property="bankOrderNo" column="trans_bank_no" jdbcType="VARCHAR"/>
+        <result property="noticeUrl" column="trans_notice_url" jdbcType="VARCHAR"/>
+        <result property="noticeStatus" column="trans_notice_status" jdbcType="INTEGER"/>
+        <result property="noticeDate" column="trans_notice_datetime" jdbcType="VARCHAR"/>
+        <result property="transPayName" column="trans_pay_name" jdbcType="VARCHAR"/>
+        <result property="transPayEmail" column="trans_pay_email" jdbcType="VARCHAR"/>
+        <result property="transPayImageUrl" column="trans_pay_image_url" jdbcType="VARCHAR"/>
+        <result property="transPayId" column="trans_pay_id" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="TransTotalMap" type="com.example.demo.project.domain.DO.TransTotal">
+        <result property="totalAmount" column="total_amount" jdbcType="DECIMAL"/>
+        <result property="totalNum" column="total_num" jdbcType="INTEGER"/>
+    </resultMap>
 
     <insert id="saveCardHolder" parameterType="com.example.demo.project.domain.DO.CardHolder">
         insert into t_cardholder(ci_tr_no, ci_mer_no, ci_mer_order_no, ci_card_number, ci_billing_firstname,
@@ -49,4 +74,57 @@
         where trans_no = #{transNo}
     </delete>
 
+    <select id="queryNormalTransaction" resultMap="TransactionMap">
+        select trans_no ,trans_mer_order_no ,trans_mer_account ,trans_amount ,trans_currency ,trans_result_code ,
+               trans_result_info ,trans_status ,trans_cha_id ,trans_datetime ,trans_bank_no ,trans_notice_url ,
+               trans_pay_name ,trans_pay_email ,trans_pay_image_url ,trans_pay_id
+        from t_transaction_normal tn
+        where tn.trans_no = #{transNo}
+    </select>
+
+    <select id="queryUnNoticeTransaction" resultMap="TransactionMap">
+        select trans_no ,trans_mer_order_no ,trans_mer_account ,trans_amount ,trans_currency ,trans_result_code ,
+               trans_result_info ,trans_status ,trans_cha_id ,trans_datetime ,trans_bank_no ,trans_notice_url ,trans_notice_status, trans_notice_datetime,
+               trans_pay_name ,trans_pay_email ,trans_pay_image_url ,trans_pay_id
+        from t_transaction_normal tn
+        where tn.trans_status in('A','F')
+          AND tn.trans_datetime > DATE_SUB(CURDATE(), INTERVAL 8 DAY)
+          AND (tn.trans_notice_status is null or tn.trans_notice_status != 1)
+        ORDER BY trans_datetime ASC LIMIT 1000
+    </select>
+
+    <select id="queryTransTotal" resultMap="TransTotalMap">
+        SELECT
+            Ifnull(SUM(TRANS_AMOUNT),0) total_amount,
+            COUNT(1) total_num
+        FROM t_transaction_normal t
+        WHERE t.trans_pay_name = #{payName}
+          AND t.trans_pay_email = #{payEmail}
+          AND t.trans_pay_image_url = #{payImageUrl}
+          AND t.trans_datetime BETWEEN #{start} AND #{end}
+          AND t.trans_status != 'F'
+    </select>
+
+    <update id="updateVenmoTransaction" parameterType="com.example.demo.project.domain.DO.NormalTransaction">
+        update t_transaction_normal tn
+        set tn.trans_bank_no = #{bankOrderNo},
+            tn.trans_pay_name = #{transPayName},
+            tn.trans_pay_email = #{transPayEmail},
+            tn.trans_pay_image_url = #{transPayImageUrl},
+            tn.trans_pay_url = #{transPayUrl}
+        where tn.trans_no = #{transNo}
+    </update>
+
+    <update id="updateVenmoPayId" parameterType="java.lang.String" >
+        update t_transaction_normal tn
+        set tn.trans_pay_id = #{payId}
+        where tn.trans_no = #{transNo}
+    </update>
+
+    <update id="updateNotice" parameterType="com.example.demo.project.domain.DO.NormalTransaction">
+        update t_transaction_normal tn
+        set tn.trans_notice_status = #{noticeStatus},
+            tn.trans_notice_datetime = #{noticeDate}
+        where tn.trans_no = #{transNo}
+    </update>
 </mapper>

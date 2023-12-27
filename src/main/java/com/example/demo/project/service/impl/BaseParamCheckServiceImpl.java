@@ -28,24 +28,27 @@ public class BaseParamCheckServiceImpl implements ParamCheckService {
     @Override
     public void checkParam(PaymentRequest request) throws PaymentException {
         String requestStr = request.toString();
-        requestStr = requestStr.replaceAll(request.getA1(), "***").
-                replaceAll(request.getA2(), "***").
-                replaceAll(request.getA3(), "***");
+        if(StringUtils.isNotBlank(request.getA1())){
+            requestStr = requestStr.replaceAll(request.getA1(), "***")
+                    .replaceAll(request.getA2(), "***")
+                    .replaceAll(request.getA3(), "***");
+        }
         logger.info("交易传入参数:"+requestStr);
         if (StringUtils.isBlank(request.getAccount())) {
             throw new PaymentException(PARAM_ERROR_CODE, "商户账户号不能为空");
         }
+        if(StringUtils.isNotBlank(request.getA1())){
+            if (!CardDataUtils.checkCardNo(request.getA1())) {
+                throw new PaymentException(PARAM_ERROR_CODE,"卡号校验不通过");
+            }
 
-        if (!CardDataUtils.checkCardNo(request.getA1())) {
-            throw new PaymentException(PARAM_ERROR_CODE,"卡号校验不通过");
-        }
+            if (!CardDataUtils.checkExpirationDate(request.getA2())) {
+                throw new PaymentException(PARAM_ERROR_CODE,"失效日期校验不通过");
+            }
 
-        if (!CardDataUtils.checkExpirationDate(request.getA2())) {
-            throw new PaymentException(PARAM_ERROR_CODE,"失效日期校验不通过");
-        }
-
-        if (StringUtils.isBlank(request.getA3())) {
-            throw new PaymentException(PARAM_ERROR_CODE,"安全码不能为空");
+            if (StringUtils.isBlank(request.getA3())) {
+                throw new PaymentException(PARAM_ERROR_CODE,"安全码不能为空");
+            }
         }
 
         if (StringUtils.isBlank(request.getOrderNo())) {

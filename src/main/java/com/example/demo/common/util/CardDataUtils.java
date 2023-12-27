@@ -25,7 +25,7 @@ public class CardDataUtils {
      */
     public static String dataDesensitization(String data, int prefix, int suffix) {
         if (StringUtils.isEmpty(data) || prefix < 0 || suffix < 0) {
-            return data;
+            return "";
         }
         if(data.length() < prefix+suffix) {
             return data;

@@ -23,7 +23,7 @@ import java.util.Objects;
 @Component
 public class AutBank {
 
-    private static final Logger logger = LoggerFactory.getLogger(BoaBank.class);
+    private static final Logger logger = LoggerFactory.getLogger(AutBank.class);
 
     public BankReturn deal(PaymentRequest paymentRequest, NormalTransaction transaction) {
         BankReturn response = new BankReturn();

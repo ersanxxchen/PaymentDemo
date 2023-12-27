@@ -9,6 +9,18 @@
         <result column="channel_day_limit"              jdbcType="DECIMAL" property="dayLimit"/>
         <result column="channel_balance_threshold"              jdbcType="DECIMAL" property="balanceThreshold"/>
         <result column="channel_status"              jdbcType="VARCHAR" property="status"/>
+        <result column="channel_direct_url"              jdbcType="VARCHAR" property="directUrl"/>
+    </resultMap>
+
+    <resultMap id="ChannelPayInfoMap" type="com.example.demo.project.domain.DO.ChannelPayInfo">
+        <result column="channel_id"            jdbcType="VARCHAR" property="channelId"/>
+        <result column="pay_name"            jdbcType="VARCHAR" property="payName"/>
+        <result column="pay_email"        jdbcType="VARCHAR" property="payEmail"/>
+        <result column="pay_bank_name"            jdbcType="VARCHAR" property="payBankName"/>
+        <result column="pay_limit_day"              jdbcType="DECIMAL" property="payLimitDay"/>
+        <result column="pay_count_day"              jdbcType="INTEGER" property="payCountDay"/>
+        <result column="pay_image_url"              jdbcType="VARCHAR" property="payImageUrl"/>
+        <result column="pay_url"              jdbcType="VARCHAR" property="payUrl"/>
     </resultMap>
 
     <select id="queryChannel" resultMap="ChannelResultMap">
@@ -18,10 +30,17 @@
                payment_method,
                channel_day_limit,
                channel_balance_threshold,
-               channel_status
+               channel_status,
+               channel_direct_url
         FROM
             t_channel c
         WHERE c.channel_id = #{channelId}
+    </select>
+
+    <select id="queryChannelPayInfo" resultMap="ChannelPayInfoMap">
+        select channel_id,pay_name,pay_email,pay_bank_name,pay_limit_day,pay_count_day,pay_image_url,pay_url
+        from t_channel_pay
+        where channel_id = #{channelId}
     </select>
 
 </mapper>

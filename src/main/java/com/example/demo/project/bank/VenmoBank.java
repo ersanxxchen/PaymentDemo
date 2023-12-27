@@ -10,24 +10,14 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-public class TestBank {
+public class VenmoBank {
 
-    private static final Logger logger = LoggerFactory.getLogger(TestBank.class);
+    private static final Logger logger = LoggerFactory.getLogger(VenmoBank.class);
 
     public BankReturn deal(PaymentRequest paymentRequest, NormalTransaction transaction) {
         BankReturn response = new BankReturn();
         response.setBankOrderNo(transaction.getTransNo());
         response.setTransStatus("P");
-        Merchant merchant = transaction.getMerchant();
-        if("1".equals(merchant.getChannelMid())) {
-            response.setTransStatus("A");
-            response.setBankReturnCode("APPROVED");
-            response.setBankReturnInfo("approved");
-        } else {
-            response.setTransStatus("F");
-            response.setBankReturnCode("DECLINED");
-            response.setBankReturnInfo("declined");
-        }
         return response;
     }
 

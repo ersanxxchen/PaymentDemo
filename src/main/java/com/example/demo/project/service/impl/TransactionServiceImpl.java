@@ -7,23 +7,36 @@ import com.example.demo.project.controller.PaymentController;
 import com.example.demo.project.domain.BankReturn;
 import com.example.demo.project.domain.DO.BlockTransaction;
 import com.example.demo.project.domain.DO.CardHolder;
+import com.example.demo.project.domain.DO.Channel;
+import com.example.demo.project.domain.DO.ChannelPayInfo;
 import com.example.demo.project.domain.DO.NormalTransaction;
+import com.example.demo.project.domain.DO.TransTotal;
 import com.example.demo.project.domain.PaymentRequest;
+import com.example.demo.project.mapper.ChannelMapper;
 import com.example.demo.project.mapper.TransactionMapper;
 import com.example.demo.project.service.TransactionService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 @Service
 public class TransactionServiceImpl implements TransactionService {
 
 
-    private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
+    private static final Logger logger = LoggerFactory.getLogger(TransactionServiceImpl.class);
 
     @Autowired
     private TransactionMapper transactionMapper;
+
+    @Autowired
+    private ChannelMapper channelMapper;
 
     public BlockTransaction saveBlockTransaction(PaymentRequest request) {
 
@@ -94,5 +107,60 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setBankOrderNo(bankReturn.getBankOrderNo());
         transactionMapper.updateNormalTransaction(transaction);
         return transaction;
+    }
+
+    public NormalTransaction getVenmoTransaction(String transNo) {
+        NormalTransaction normalTransaction = transactionMapper.queryNormalTransaction(transNo);
+        if(normalTransaction == null){
+            return null;
+        }
+        Channel channel = channelMapper.queryChannel(normalTransaction.getChannelId());
+
+        if (!StringUtils.equals(channel.getBank(), "Venmo")
+            && !StringUtils.equals(channel.getBank(), "Cash App")) {
+            return null;
+        }
+        String date = LocalDateTime.now().format(DateUtils.nowDate);
+        String startTime = date + "000000000";
+        String endTime = date + "235959999";
+        List<ChannelPayInfo> channelPayInfos = channelMapper.queryChannelPayInfo(normalTransaction.getChannelId());
+        for (ChannelPayInfo info : channelPayInfos) {
+            TransTotal transTotal = transactionMapper.queryTransTotal(info.getPayName(), info.getPayEmail(), info.getPayImageUrl(), startTime, endTime);
+            // 当天剩余金额
+            BigDecimal surplusAmount = info.getPayLimitDay().subtract(transTotal.getTotalAmount());
+            // 当天剩余笔数
+            int surplusCount = info.getPayCountDay() - transTotal.getTotalNum();
+            if (normalTransaction.getAmount().compareTo(surplusAmount) <= 0 && surplusCount > 0) {
+                String randomNo = PaymentUtils.getRandomNo();
+                normalTransaction.setBankOrderNo(StringUtils.defaultIfBlank(normalTransaction.getBankOrderNo(), randomNo));
+                normalTransaction.setTransPayName(info.getPayName());
+                normalTransaction.setTransPayEmail(info.getPayEmail());
+                normalTransaction.setTransPayImageUrl(info.getPayImageUrl());
+                normalTransaction.setTransPayUrl(info.getPayUrl());
+                // 更新交易表信息
+                transactionMapper.updateVenmoTransaction(normalTransaction);
+                break;
+            }
+        }
+        return normalTransaction;
+    }
+
+    public void submitVenmoTransaction(String transNo, String payId) {
+        NormalTransaction normalTransaction = transactionMapper.queryNormalTransaction(transNo);
+        Channel channel = channelMapper.queryChannel(normalTransaction.getChannelId());
+
+        if (!StringUtils.equals(channel.getBank(), "Venmo")
+                && !StringUtils.equals(channel.getBank(), "Cash App")) {
+            return ;
+        }
+        transactionMapper.updateVenmoPayId(transNo,payId);
+    }
+
+    public List<NormalTransaction> getAllUnNoticeTransaction(){
+        return transactionMapper.queryUnNoticeTransaction();
+    }
+
+    public void updateNoticeTransaction(NormalTransaction transaction){
+        transactionMapper.updateNotice(transaction);
     }
 }
